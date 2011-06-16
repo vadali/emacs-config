@@ -38,14 +38,6 @@ Sometimes you want to execute a search across all your open buffers, for example
   (interactive "sRegexp to search for: ")
   (multi-occur-in-matching-buffers ".*" regexp))
 #+end_src
-** Flyspell Convenience Function
-When =flyspell-mode= is activated, it doesn't go back and check the entire current buffer for spelling errors.  This is a helper function that turns on flyspell, and goes back and checks the current buffer for spelling errors after doing so.
-#+begin_src emacs-lisp
-(defun flyspell-on ()
-  (interactive)
-  (flyspell-mode 1)
-  (flyspell-buffer))
-#+end_src
 ** Org Mode for Presentations
 I like to use org-mode to plan for presentations, and because of its unique ability to handle code with org-babel, it is ideal for giving technical presentations as well.  These functions allow simple presentations to be given by narrowing the buffer to a headline and allowing navigation to adjacent headlines.
 
@@ -101,16 +93,13 @@ This one changes the cursor color on each blink. Define colors in `blink-cursor-
   :CUSTOM_ID: load-path-setup
   :END:
 This file makes use of a variety of modes and code that are included under the =src= sub-directory of my =.emacs.d= directory.  This code adds those directories so the rest of the file can be executed smoothly.
-
 #+begin_src emacs-lisp
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "src" "org-mode" "lisp"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "src" "org-mode" "contrib" "lisp"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "src"))
-#+end_src
-** ELPA Initialization
-ELPA is a package manager for Emacs, and I've loaded a variety of add-on packages through ELPA.  Some of them, like =idle-require= I make use of in this file, so rather than initialize ELPA at the end of the file, I initialize it here, before I set up everything else.
-#+begin_src emacs-lisp
-  (when (load (construct-path "~" ".emacs.d" "elpa" "package.el")) (package-initialize))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name))))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "org-mode" "lisp"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "org-mode" "contrib" "lisp"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "todotxt.el"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "sunrise-commander"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "magit"))
 #+end_src
 * Editor Behavior
 ** Prevent backups from littering the file system
@@ -132,8 +121,9 @@ Emacs maintains a kill-ring independent of the system clipboard.  This can be us
 #+end_src
 ** Meta Key Modifications
 On many platform/keyboard combinations, keys are not placed conveniently for use in Emacs.  Specifically, the control key is often placed in the lower left corner of the keyboard, which can cause strain.  This is usually rebound to a more convenient location (like the key that most modern keyboards assign to Caps Lock).  The other key that sometimes causes issues is the Meta key, and that is what we address here.  If you're using Emacs on Apple hardware with an Apple keyboard, for example, the "Command" key should be treated as Meta.  This can be effected with:
-#+begin_src emacs-lisp :tangle no
-(setq ns-command-modifier (quote meta))
+#+begin_src emacs-lisp
+  (if (eq system-type 'darwin)
+      (setq ns-command-modifier (quote meta)))
 #+end_src
 It's worth noting that this variable doesn't even exist on non-Apple platforms, and may or may not be present in alternative builds like Carbon Emacs and Aquamacs, which have their own methods for handling Meta key behavior on Apple platforms.
 
@@ -196,19 +186,15 @@ I don't add on too many non-default applications, but sunrise commander is so go
 #+begin_src emacs-lisp
 (require 'sunrise-commander)
 #+end_src
+*** Magit
+#+begin_src emacs-lisp
+(require 'magit)
+#+end_src
 *** todotxt.el
 #+begin_src emacs-lisp
 (require 'todotxt)
 #+end_src
 ** Modes
-There a variety of modes that I'd like to be available during my editing session, but I don't want to sacrifice startup speed to have them, since I won't be using them immediately, usually.  =idle-require= tells emacs to load them when convenient, rather than hold up the initialization process loading them.
-#+begin_src emacs-lisp
-  ;(idle-require 'htmlize)
-  ;(idle-require 'clojure-mode)
-  ;(idle-require 'remember)
-  ;(idle-require 'org-remember)
-  ;(idle-require 'org-export-latex)
-#+end_src
 *** ANSI Color in Terminals
 (ansi-color-for-comint-mode-on)
 *** =recentf= Setup
@@ -262,10 +248,11 @@ Also from Effective Emacs, this is item 3, which allows us to be able to =backwa
 I use several functions very often, so I like to be able to access them very quickly.  These accelerators proide that quick access.
 #+begin_src emacs-lisp
 (global-set-key "\C-xq" 'anything)
-(global-set-key "\C-xi" 'imenu)
+(global-set-key "\C-xi" 'ibuffer)
+(global-set-key "\C-xg" 'magit-status)
 (global-set-key "\C-xf" 'recentf-open-files)
 (global-set-key "\C-xc" 'calendar)
-(global-set-key "\C-xs" 'flyspell-on)
+(global-set-key "\C-xs" 'sunrise)
 (global-set-key (kbd "C-x t") 'todotxt)
 (global-set-key "\C-xc" 'search)
 (global-set-key "\C-ca" 'org-agenda)
@@ -304,7 +291,7 @@ Color themes should be incuded in Emacs, but they're not.  These commands simply
 #+begin_src emacs-lisp
 (require 'color-theme)
 (color-theme-initialize)
-(color-theme-hober)
+(color-theme-charcoal-black)
 #+end_src
 ** Browser Configuration
 Sets up the default browser that Emacs uses to display HTML and visit links.
@@ -312,17 +299,4 @@ Sets up the default browser that Emacs uses to display HTML and visit links.
 (setq browse-url-browser-function (quote browse-url-generic))
 (setq browse-url-generic-program "firefox")
 #+end_src
-** Screencast
-Loads a custom screencasting mode I use to do the Hack Emacs series of
-videos.
-#+begin_src emacs-lisp
-(require 'screencast)
-#+end_src
 
-* Location-specific Settings
-Most of the customizations so far carry well across computers.  These, however, point Emacs to outside resources on the system on which the customization resides, so they will need to be changed from platform to platform.  The first sets my default lisp interpreter to be [[http://clojure.org][Clojure]] running on the JVM, and the second sets my default scheme program to be [[http://dynamo.iro.umontreal.ca/~gambit/wiki/index.php/Main_Page][Gambit Scheme]].
-#+begin_src emacs-lisp
-(setq-default inferior-lisp-program "java -jar /home/rpdillon/apps/clojure/clojure.jar")
-(setq-default scheme-program-name "/home/rpdillon/apps/gambc-v4_6_0/gsi/gsi -:d")
-(setq scheme-program-name "/home/rpdillon/apps/gambc-v4_6_0/gsi/gsi -:d")
-#+end_src

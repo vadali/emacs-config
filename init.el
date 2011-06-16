@@ -8,13 +8,13 @@
 (let* ((org-dir (expand-file-name
                  "lisp" (expand-file-name
                          "org-mode" (expand-file-name
-                                "src" dotfiles-dir)))))
+                                dotfiles-dir)))))
   (add-to-list 'load-path org-dir)
   (require 'org)
   (require 'ob))
 
 ; Load all literate org-mode files in this directory (any org-mode files residing there)
-(mapc #'org-babel-load-file (directory-files dotfiles-dir t "\\.org$"))
+(mapc #'org-babel-load-file (directory-files dotfiles-dir t "emacs.org$"))
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.

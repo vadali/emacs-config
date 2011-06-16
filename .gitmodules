@@ -1,0 +1,12 @@
+[submodule "todotxt.el"]
+	path = todotxt.el
+	url = ./todotxt.el
+[submodule "org-mode"]
+	path = org-mode
+	url = ./org-mode/
+[submodule "magit"]
+	path = magit
+	url = ./magit
+[submodule "sunrise-commander"]
+	path = sunrise-commander
+	url = ./sunrise-commander
