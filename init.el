@@ -25,7 +25,6 @@
  '(erc-modules (quote (autojoin button completion fill irccontrols list log match menu move-to-prompt netsplit networks noncommands readonly ring stamp track)))
  '(htmlize-output-type (quote font))
  '(org-confirm-elisp-link-function nil)
- '(todo-file-do "~/Dropbox/memex/todo.txt")
  '(todotxt-file "/home/rpdillon/Dropbox/memex/todo.txt" nil (todotxt)))
 (custom-set-faces
   ;; custom-set-faces was added by Custom.

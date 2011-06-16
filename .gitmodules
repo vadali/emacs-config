@@ -1,12 +1,12 @@
-[submodule "todotxt.el"]
-	path = todotxt.el
-	url = ./todotxt.el
 [submodule "org-mode"]
 	path = org-mode
-	url = ./org-mode/
+	url = git://repo.or.cz/org-mode.git
+[submodule "todotxt.el"]
+	path = todotxt.el
+	url = git://github.com/rpdillon/todotxt.el.git
 [submodule "magit"]
 	path = magit
-	url = ./magit
+	url = git://github.com/philjackson/magit.git
 [submodule "sunrise-commander"]
 	path = sunrise-commander
-	url = ./sunrise-commander
+	url = git://github.com/emacsmirror/sunrise-commander.git
