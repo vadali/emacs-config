@@ -1,5 +1,16 @@
 * Emacs Configuration Using Org-Babel
-  This repository contains the setup I use to customize Emacs.  It doesn't include the (rather large) collection of add on packages I use; rather, it is the [[http://orgmode.org/worg/org-contrib/babel/][Org-Babel]] setup I use to store my initialization file as an Org Mode file, and the corresponding =init.el= that bootstraps the system.
+
+  This repository contains the setup I use to customize Emacs.  The configuration uses an [[http://orgmode.org/worg/org-contrib/babel/][Org-Babel]] setup I use to store my initialization file as an Org Mode file, and the corresponding =init.el= that bootstraps the system.  
+
+My emacs configuration uses the =.emacs.d= directory since it contains several files.  There are several other packages it relies on to work.  Rather than include them directly in the repository, this repository contains submodules that point to them.  Before you begin, make sure you don't have a =.emacs= file or a =.emacs.d= directory already set up; they'll get in the way of setting everything up.  It takes three steps to configure the repository:
+
+  - Check out the repository using git into the directory of your choosing
+  - Navigate to the =emacs-config= directory and run two commands:
+    - =git submodule init=
+    - =git submodule update=
+  - Symlink the =emacs-config= directory to =~/.emacs.d=
+
+Start up Emacs and test out the new configuration, and edit the =emacs.org= file as desired.
 
 GitHub actually uses a Ruby gem called [[http://orgmode.org/worg/org-tutorials/org-ruby.html][Org-Ruby]] to handle org files, and Org-Ruby doesn't handle code blocks nearly as well as the elisp version does. For that reason, if you choose to view the repository on GitHub, I recommend viewing the file in =raw= mode, since the source code will otherwise be somewhat mangled.
 
