@@ -202,8 +202,8 @@ I don't add on too many non-default applications, but sunrise commander is so go
 (recentf-mode t)
 (setq recentf-auto-cleanup 'never)
 #+end_src
-*** Org-Remember
-=remember-mode= is great for capturing tasks and information that you need to remember, and org-mode offers a great set of additional functionality that tie in with remember.  This simply sets up a capture destination under the "Incoming" bullet of index.org in my "sidebrain" directory.
+*** Org Capture
+Org offers a data capture mode much like =remember-mode=, which is great for capturing tasks and information that you need to remember.  This simply sets up a capture destination under the "Uncategorized" bullet of incoming.org in my "memex" directory.
 #+begin_src emacs-lisp
 (org-remember-insinuate)
 (setq org-directory (construct-path (file-name-as-directory "~") "Dropbox" "memex"))
@@ -211,8 +211,11 @@ I don't add on too many non-default applications, but sunrise commander is so go
 #+end_src
 
 #+begin_src emacs-lisp
-  (setq org-remember-templates
-        '(("Incoming" ?i "** %t: %?\n  %i\n  %a" (construct-path org-directory "incoming.org") "Uncategorized")))
+    (setq org-capture-templates
+          '(("i" "Incoming" entry (file+headline org-default-notes-file "Uncategorized")
+             "** %t: %?\n  %i\n")
+            ("u" "Upcoming" entry (file+headline (construct-path org-directory "index.org") "Upcoming")
+             "** %t: %?\n  %i\n")))
 #+end_src
 ** Org-Babel Setup
 Org babel is an insanely powerful add-on for org-mode that allow code to be integrated into documents.  This sets up what languages can be executed with babel.
@@ -247,16 +250,14 @@ Also from Effective Emacs, this is item 3, which allows us to be able to =backwa
 
 I use several functions very often, so I like to be able to access them very quickly.  These accelerators proide that quick access.
 #+begin_src emacs-lisp
-(global-set-key "\C-xq" 'anything)
 (global-set-key "\C-xi" 'ibuffer)
 (global-set-key "\C-xg" 'magit-status)
 (global-set-key "\C-xf" 'recentf-open-files)
 (global-set-key "\C-xc" 'calendar)
 (global-set-key "\C-xs" 'sunrise)
 (global-set-key (kbd "C-x t") 'todotxt)
-(global-set-key "\C-xc" 'search)
 (global-set-key "\C-ca" 'org-agenda)
-(global-set-key "\C-cr" 'org-remember)
+(global-set-key "\C-cc" 'org-capture)
 #+end_src
 
 I have some custom functions I defined earlier that are useful to have easy access to.
