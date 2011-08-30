@@ -13,7 +13,7 @@
 #+LINK_UP:   
 #+LINK_HOME: 
 
-n* Custom Functions
+* Custom Functions
 ** Platform-independent Path Costruction
 If you have a collection of code that you want to load at startup, you tend to want to modify the =load-path= variable by adding paths of your own.  This can be cumbersome, so this function automatically chains together the path-handling calls to reduce unwieldy calls later.  You simply call it with the path elements you want to construct, in order:
 #+begin_src emacs-lisp :tangle no
@@ -172,6 +172,12 @@ One of the best changes to Emacs' default behavior, this modifies the scrolling 
 If the cursor is on a parenthesis, bracket or brace, this mode highlights the corresponding parenthesis, bracket or brace.  Very handy in a lot of situations, most notably when programming in lisp.
 #+begin_src emacs-lisp
 (show-paren-mode t)
+#+end_src
+** Browse Kill Ring
+The kill ring is amazing, but Emacs doesn't provide a good mechanism to easily access the elements of it interactively.  This code does.
+#+begin_src emacs-lisp
+(require 'browse-kill-ring)
+(browse-kill-ring-default-keybindings)
 #+end_src
 ** Line Wrapping
 There are lots of ways to handle line wrapping, but this mode is the best I've found, by far.  It does not insert hard newlines into your document, and behaves correctly /vis a vis/ line numbers.
