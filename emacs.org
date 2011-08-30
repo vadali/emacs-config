@@ -13,7 +13,7 @@
 #+LINK_UP:   
 #+LINK_HOME: 
 
-* Custom Functions
+n* Custom Functions
 ** Platform-independent Path Costruction
 If you have a collection of code that you want to load at startup, you tend to want to modify the =load-path= variable by adding paths of your own.  This can be cumbersome, so this function automatically chains together the path-handling calls to reduce unwieldy calls later.  You simply call it with the path elements you want to construct, in order:
 #+begin_src emacs-lisp :tangle no
@@ -100,6 +100,9 @@ This file makes use of a variety of modes and code that are included under the =
   (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "todotxt.el"))
   (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "sunrise-commander"))
   (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "magit"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "ace-jump-mode"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "Mew"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "emacs-jabber"))
 #+end_src
 * Editor Behavior
 ** Prevent backups from littering the file system
@@ -194,6 +197,49 @@ I don't add on too many non-default applications, but sunrise commander is so go
 #+begin_src emacs-lisp
 (require 'todotxt)
 #+end_src
+*** Mew
+Mew is probably the best mail reader for Emacs.  At the very least, I think it strikes the best balance between complexity and functionality of all of them.  These are some commands that configure Mew.
+#+begin_src emacs-lisp
+  (require 'mew)
+
+  ;; Both these functions are completely optional  
+  (if (boundp 'mail-user-agent)
+      (setq mail-user-agent 'mew-user-agent))
+  
+  (if (fboundp 'define-mail-user-agent)
+      (define-mail-user-agent
+        'mew-user-agent
+        'mew-user-agent-compose
+        'mew-draft-send-message
+        'mew-draft-kill
+        'mew-send-hook))
+  
+  (setq mew-name "R. P. Dillon")
+  (setq mew-user "rpdillon@gmail.com")
+  (setq mew-mail-domain "gmail.com")
+  (setq mew-smtp-server "smtp.gmail.com")
+  (setq mew-smtp-ssl 't)
+  (setq mew-smtp-ssl-port 465)
+  (setq mew-smtp-user "rpdillon@gmail.com")
+  (setq mew-smtp-auth-list '("LOGIN" "CRAM-MD5" "PLAIN")) ;; GMail uses LOGIN
+  (setq mew-proto "%")
+  (setq mew-imap-user "rpdillon@gmail.com")
+  (setq mew-imap-server "imap.gmail.com")
+  (setq mew-imap-ssl 't)
+  (setq mew-imap-ssl-port 993)
+  (setq mew-imap-delete nil)
+  (setq mew-use-master-passwd 't) ;; Requires gnupg
+  (setq mew-ssl-verify-level 0) ;; Required because I don't want to mess with CAs
+  (setq mew-use-biff 't)
+  (setq mew-search-method 'est) ;; Hyper Estraier
+
+  ;; Required because I don't install mew globally
+  (setq mew-dir "/home/rpdillon/emacs-config/Mew")
+  (setq mew-prog-mewl (concat mew-dir "/bin/mewl"))
+  (setq mew-prog-mime-encode (concat mew-dir "/bin/mewencode"))
+  (setq mew-prog-mime-decode (concat mew-dir "/bin/mewdecode"))
+  (setq mew-prog-est-update (concat mew-dir "/bin/mewest"))
+#+end_src
 ** Modes
 *** ANSI Color in Terminals
 (ansi-color-for-comint-mode-on)
@@ -216,6 +262,16 @@ Org offers a data capture mode much like =remember-mode=, which is great for cap
              "** %t: %?\n  %i\n")
             ("u" "Upcoming" entry (file+headline (construct-path org-directory "index.org") "Upcoming")
              "** %t: %?\n  %i\n")))
+#+end_src
+*** Ace Jump
+A cursor navigation system so advanced it makes C-s look slow.  Thanks winterTTr.
+#+begin_src emacs-lisp
+  (require 'ace-jump-mode)
+  (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+#+end_src
+*** Windmove and Framemove
+#+begin_src emacs-lisp
+(windmove-default-keybindings)
 #+end_src
 ** Org-Babel Setup
 Org babel is an insanely powerful add-on for org-mode that allow code to be integrated into documents.  This sets up what languages can be executed with babel.
@@ -252,6 +308,7 @@ I use several functions very often, so I like to be able to access them very qui
 #+begin_src emacs-lisp
 (global-set-key "\C-xi" 'ibuffer)
 (global-set-key "\C-xg" 'magit-status)
+(global-set-key "\C-xm" 'mew)
 (global-set-key "\C-xf" 'recentf-open-files)
 (global-set-key "\C-xc" 'calendar)
 (global-set-key "\C-xs" 'sunrise)
@@ -298,6 +355,6 @@ Color themes should be incuded in Emacs, but they're not.  These commands simply
 Sets up the default browser that Emacs uses to display HTML and visit links.
 #+begin_src emacs-lisp
 (setq browse-url-browser-function (quote browse-url-generic))
-(setq browse-url-generic-program "firefox")
+(setq browse-url-generic-program "/home/rpdillon/apps/firefox/firefox")
 #+end_src
 
