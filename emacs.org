@@ -70,22 +70,23 @@ I like to use org-mode to plan for presentations, and because of its unique abil
 From [[http://www.emacswiki.org/emacs/Zarza][Zarza's]] page:
 
 #+begin_src emacs-lisp
-(defvar blink-cursor-colors (list  "#92c48f" "#6785c5" "#be369c" "#d9ca65")
-  "On each blink the cursor will cycle to the next color in this list.")
-
-(setq blink-cursor-count 0)
-(defun blink-cursor-timer-function ()
-  "Cyberpunk variant of timer `blink-cursor-timer'. OVERWRITES original version in `frame.el'.
-
-This one changes the cursor color on each blink. Define colors in `blink-cursor-colors'."
-  (when (not (internal-show-cursor-p))
-    (when (>= blink-cursor-count (length blink-cursor-colors))
-      (setq blink-cursor-count 0))
-    (set-cursor-color (nth blink-cursor-count blink-cursor-colors))
-    (setq blink-cursor-count (+ 1 blink-cursor-count))
+  (defvar blink-cursor-colors (list  "#92c48f" "#6785c5" "#be369c" "#d9ca65")
+    "On each blink the cursor will cycle to the next color in this list.")
+  
+  (setq blink-cursor-count 0)
+  (defun blink-cursor-timer-function ()
+    "Cyberpunk variant of timer `blink-cursor-timer'. OVERWRITES original version in `frame.el'.
+  
+  This one changes the cursor color on each blink. Define colors in `blink-cursor-colors'."
+    (when (not (internal-show-cursor-p))
+      (when (>= blink-cursor-count (length blink-cursor-colors))
+        (setq blink-cursor-count 0))
+      (set-cursor-color (nth blink-cursor-count blink-cursor-colors))
+      (setq blink-cursor-count (+ 1 blink-cursor-count))
+      )
+    (internal-show-cursor nil (not (internal-show-cursor-p)))
     )
-  (internal-show-cursor nil (not (internal-show-cursor-p)))
-  )
+(blink-cursor-mode 1)
 #+end_src
 
 * Load Path Setup
@@ -98,30 +99,74 @@ This file makes use of a variety of modes and code that are included under the =
   (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "org-mode" "lisp"))
   (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "org-mode" "contrib" "lisp"))
   (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "todotxt.el"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "sunrise-commander"))
   (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "magit"))
   (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "ace-jump-mode"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "Mew"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "emacs-jabber"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "yasnippet"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "rinari"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "bm"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "workgroups.el"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "emacs-color-theme-solarized"))
 #+end_src
 * Editor Behavior
+** Workgroups
+If you use Emacs for a variety of tasks, Workgroups makes every go more smoothly.  Highly recommended for power users.
+#+begin_src emacs-lisp
+  (require 'workgroups)
+  (workgroups-mode 1)
+  (wg-load "/home/rpdillon/workgroups")
+#+end_src
+
+** Mouse Banishment
+The mouse is mainly a hinderance to my productivity in Emacs, so as
+soon as I touch the keyboard, this mode pushes the pointer to the
+upper right of the frame I'm working in.
+#+begin_src emacs-lisp
+  (mouse-avoidance-mode 'banish)
+#+end_src
 ** Prevent backups from littering the file system
 By default, Emacs provides fairly robust backup file (files that end with a ~) support, but it leaves those files in the same directories alongside the originals.  This is a customization that gathers all the backups into one spot, so you can find them in one place, and don't have to worry about, e.g. your version control system commiting them by accident.
 #+begin_src emacs-lisp
 (setq backup-directory-alist `(("." . ,(construct-path "~" "emacsbackup"))))
 #+end_src
-
 ** Region selection
 The newer versions of Emacs (version 23+), turn on a more common but less powerful mode for text selection called =transient-mark-mode=, which only supplies an active region when text is selected.  This disables that mode in favor of the traditional Emacs behavior.
 #+begin_src emacs-lisp
 (transient-mark-mode 0)
 #+end_src
-
+** BM
+#+begin_src emacs-lisp
+  (require 'bm)
+  (global-set-key "\C-ct" 'bm-toggle)
+  (global-set-key "\C-cn" 'bm-next)
+  (global-set-key "\C-cp" 'bm-previous)
+#+end_src
 ** Clipboard Behavior
 Emacs maintains a kill-ring independent of the system clipboard.  This can be useful or annoying, and I tend to find it annoying.  This variable combines the two clipboards to they interoperate.
 #+begin_src emacs-lisp
 (setq-default x-select-enable-clipboard t)
 #+end_src
+
+** Yasnippet
+Yasnippet is badass.  If you find yourself writing code that lends
+itself to templating (like begin_src and end_src blocks in Org Mode!),
+Yasnippet can help.
+#+begin_src emacs-lisp
+  (require 'yasnippet)
+  (yas/global-mode 1)
+#+end_src
+
+There's an issue in org-mode where the yas minor mode won't correctly
+bind TAB.  This adds a hook when org mode loads that correctly sets
+the yas fallback function to call org's command.
+#+begin_src emacs-lisp
+  (add-hook 'org-mode-hook
+              (let ((original-command (lookup-key org-mode-map [tab])))
+                `(lambda ()
+                   (setq yas/fallback-behavior
+                         '(apply ,original-command))
+                   (local-set-key [tab] 'yas/expand))))
+#+end_src
+
 ** Meta Key Modifications
 On many platform/keyboard combinations, keys are not placed conveniently for use in Emacs.  Specifically, the control key is often placed in the lower left corner of the keyboard, which can cause strain.  This is usually rebound to a more convenient location (like the key that most modern keyboards assign to Caps Lock).  The other key that sometimes causes issues is the Meta key, and that is what we address here.  If you're using Emacs on Apple hardware with an Apple keyboard, for example, the "Command" key should be treated as Meta.  This can be effected with:
 #+begin_src emacs-lisp
@@ -190,11 +235,6 @@ The idiomatic way to use Emacs is to keep one Emacs session running, and open ne
 (server-start)
 #+end_src
 ** Applications
-I don't add on too many non-default applications, but sunrise commander is so good that I couldn't resist.  It is on OFM (orthodox file manager) that is built as a front-end to dired-mode that I find quite useful for its dual-pane functionality.
-*** Sunrise Commander
-#+begin_src emacs-lisp
-(require 'sunrise-commander)
-#+end_src
 *** Magit
 #+begin_src emacs-lisp
 (require 'magit)
@@ -202,49 +242,6 @@ I don't add on too many non-default applications, but sunrise commander is so go
 *** todotxt.el
 #+begin_src emacs-lisp
 (require 'todotxt)
-#+end_src
-*** Mew
-Mew is probably the best mail reader for Emacs.  At the very least, I think it strikes the best balance between complexity and functionality of all of them.  These are some commands that configure Mew.
-#+begin_src emacs-lisp
-  (require 'mew)
-
-  ;; Both these functions are completely optional  
-  (if (boundp 'mail-user-agent)
-      (setq mail-user-agent 'mew-user-agent))
-  
-  (if (fboundp 'define-mail-user-agent)
-      (define-mail-user-agent
-        'mew-user-agent
-        'mew-user-agent-compose
-        'mew-draft-send-message
-        'mew-draft-kill
-        'mew-send-hook))
-  
-  (setq mew-name "R. P. Dillon")
-  (setq mew-user "rpdillon@gmail.com")
-  (setq mew-mail-domain "gmail.com")
-  (setq mew-smtp-server "smtp.gmail.com")
-  (setq mew-smtp-ssl 't)
-  (setq mew-smtp-ssl-port 465)
-  (setq mew-smtp-user "rpdillon@gmail.com")
-  (setq mew-smtp-auth-list '("LOGIN" "CRAM-MD5" "PLAIN")) ;; GMail uses LOGIN
-  (setq mew-proto "%")
-  (setq mew-imap-user "rpdillon@gmail.com")
-  (setq mew-imap-server "imap.gmail.com")
-  (setq mew-imap-ssl 't)
-  (setq mew-imap-ssl-port 993)
-  (setq mew-imap-delete nil)
-  (setq mew-use-master-passwd 't) ;; Requires gnupg
-  (setq mew-ssl-verify-level 0) ;; Required because I don't want to mess with CAs
-  (setq mew-use-biff 't)
-  (setq mew-search-method 'est) ;; Hyper Estraier
-
-  ;; Required because I don't install mew globally
-  (setq mew-dir "/home/rpdillon/emacs-config/Mew")
-  (setq mew-prog-mewl (concat mew-dir "/bin/mewl"))
-  (setq mew-prog-mime-encode (concat mew-dir "/bin/mewencode"))
-  (setq mew-prog-mime-decode (concat mew-dir "/bin/mewdecode"))
-  (setq mew-prog-est-update (concat mew-dir "/bin/mewest"))
 #+end_src
 ** Modes
 *** ANSI Color in Terminals
@@ -314,10 +311,8 @@ I use several functions very often, so I like to be able to access them very qui
 #+begin_src emacs-lisp
 (global-set-key "\C-xi" 'ibuffer)
 (global-set-key "\C-xg" 'magit-status)
-(global-set-key "\C-xm" 'mew)
 (global-set-key "\C-xf" 'recentf-open-files)
 (global-set-key "\C-xc" 'calendar)
-(global-set-key "\C-xs" 'sunrise)
 (global-set-key (kbd "C-x t") 'todotxt)
 (global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cc" 'org-capture)
@@ -351,16 +346,15 @@ There are a variety of commands that Emacs considers "advanced", and will theref
 (put 'set-goal-column 'disabled nil)
 #+end_src
 ** Color Themes
-Color themes should be incuded in Emacs, but they're not.  These commands simply load the =color-theme= library and select my current favority color theme.
+Color themes are included in Emacs 24, but not Solarized.  This remedies that.
 #+begin_src emacs-lisp
-(require 'color-theme)
-(color-theme-initialize)
-(color-theme-charcoal-black)
+  (require 'color-theme-solarized)
+  (color-theme-solarized-dark)
 #+end_src
 ** Browser Configuration
 Sets up the default browser that Emacs uses to display HTML and visit links.
 #+begin_src emacs-lisp
 (setq browse-url-browser-function (quote browse-url-generic))
-(setq browse-url-generic-program "/home/rpdillon/apps/firefox/firefox")
+(setq browse-url-generic-program "firefox")
 #+end_src
 
