@@ -28,3 +28,6 @@
 [submodule "emacs-color-theme-solarized"]
 	path = emacs-color-theme-solarized
 	url = git://github.com/sellout/emacs-color-theme-solarized.git
+[submodule "sunrise-commander"]
+	path = sunrise-commander
+	url = git://github.com/escherdragon/sunrise-commander.git

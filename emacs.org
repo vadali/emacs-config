@@ -1,21 +1,26 @@
 #+TITLE:     Rick Dillon's Emacs Initialization File
 #+AUTHOR:    R. P. Dillon
-#+EMAIL:     rpdillon@etherplex.org
-#+DATE:      2010-07-10 Sat
-#+DESCRIPTION: 
-#+KEYWORDS: 
+#+EMAIL:     rpdillon@killring.org
+#+DATE:      2012-07-06 Fri
+#+DESCRIPTION:
+#+KEYWORDS:
 #+LANGUAGE:  en
 #+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
 #+OPTIONS:   TeX:t LaTeX:nil skip:nil d:nil todo:t pri:nil tags:not-in-toc
 #+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
 #+EXPORT_SELECT_TAGS: export
 #+EXPORT_EXCLUDE_TAGS: noexport
-#+LINK_UP:   
-#+LINK_HOME: 
+#+LINK_UP:
+#+LINK_HOME:
 
 * Custom Functions
 ** Platform-independent Path Costruction
-If you have a collection of code that you want to load at startup, you tend to want to modify the =load-path= variable by adding paths of your own.  This can be cumbersome, so this function automatically chains together the path-handling calls to reduce unwieldy calls later.  You simply call it with the path elements you want to construct, in order:
+If you have a collection of code that you want to load at startup, you
+tend to want to modify the =load-path= variable by adding paths of
+your own.  This can be cumbersome, so this function automatically
+chains together the path-handling calls to reduce unwieldy calls
+later.  You simply call it with the path elements you want to
+construct, in order:
 #+begin_src emacs-lisp :tangle no
 (construct-path "~" "foo" "bar" "baz.txt")
 #+end_src
@@ -31,7 +36,11 @@ You can see more of how it's used in the section on [[#load-path-setup][Load Pat
 #+end_src
 
 ** Multi-buffer Search
-Sometimes you want to execute a search across all your open buffers, for example when you have a collection of related files and need to find a reference to a particular word or phrase (writing) or variable or function (programming).  This is an interactive function that does exactly that.
+Sometimes you want to execute a search across all your open buffers,
+for example when you have a collection of related files and need to
+find a reference to a particular word or phrase (writing) or variable
+or function (programming).  This is an interactive function that does
+exactly that.
 #+begin_src emacs-lisp
 (defun search (regexp)
   "Search all buffers for a regexp."
@@ -39,11 +48,15 @@ Sometimes you want to execute a search across all your open buffers, for example
   (multi-occur-in-matching-buffers ".*" regexp))
 #+end_src
 ** Org Mode for Presentations
-I like to use org-mode to plan for presentations, and because of its unique ability to handle code with org-babel, it is ideal for giving technical presentations as well.  These functions allow simple presentations to be given by narrowing the buffer to a headline and allowing navigation to adjacent headlines.
+I like to use org-mode to plan for presentations, and because of its
+unique ability to handle code with org-babel, it is ideal for giving
+technical presentations as well.  These functions allow simple
+presentations to be given by narrowing the buffer to a headline and
+allowing navigation to adjacent headlines.
 
 #+begin_src emacs-lisp
   (require 'org)
-        
+
   (defun org-presentation-start ()
     "Start a presentation from the first headline of the file"
     (interactive)
@@ -51,7 +64,7 @@ I like to use org-mode to plan for presentations, and because of its unique abil
     (outline-next-visible-heading 1)
     (org-narrow-to-subtree)
     (org-show-subtree))
-  
+
   (defun org-presentation-adjacent (arg)
     "An arg of 1 moves to the next heading, an arg of negative 1
   moves to the previous heading."
@@ -61,10 +74,10 @@ I like to use org-mode to plan for presentations, and because of its unique abil
     (outline-next-visible-heading arg)
     (org-narrow-to-subtree)
     (org-show-subtree))
-  
+
   (define-key org-mode-map (kbd "C-c s") '(lambda () (interactive) (org-presentation-start)))
   (define-key org-mode-map (kbd "C-c n") '(lambda () (interactive) (org-presentation-adjacent 1)))
-  (define-key org-mode-map (kbd "C-c p") '(lambda () (interactive) (org-presentation-adjacent -1)))  
+  (define-key org-mode-map (kbd "C-c p") '(lambda () (interactive) (org-presentation-adjacent -1)))
 #+end_src
 ** Cyberpunk Cursor
 From [[http://www.emacswiki.org/emacs/Zarza][Zarza's]] page:
@@ -72,11 +85,11 @@ From [[http://www.emacswiki.org/emacs/Zarza][Zarza's]] page:
 #+begin_src emacs-lisp
   (defvar blink-cursor-colors (list  "#92c48f" "#6785c5" "#be369c" "#d9ca65")
     "On each blink the cursor will cycle to the next color in this list.")
-  
+
   (setq blink-cursor-count 0)
   (defun blink-cursor-timer-function ()
     "Cyberpunk variant of timer `blink-cursor-timer'. OVERWRITES original version in `frame.el'.
-  
+
   This one changes the cursor color on each blink. Define colors in `blink-cursor-colors'."
     (when (not (internal-show-cursor-p))
       (when (>= blink-cursor-count (length blink-cursor-colors))
@@ -93,23 +106,20 @@ From [[http://www.emacswiki.org/emacs/Zarza][Zarza's]] page:
   :PROPERTIES:
   :CUSTOM_ID: load-path-setup
   :END:
-This file makes use of a variety of modes and code that are included under the =src= sub-directory of my =.emacs.d= directory.  This code adds those directories so the rest of the file can be executed smoothly.
+This file makes use of a variety of modes and code that are included
+under the =src= sub-directory of my =.emacs.d= directory.  This code
+adds those directories so the rest of the file can be executed
+smoothly.
 #+begin_src emacs-lisp
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name))))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "org-mode" "lisp"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "org-mode" "contrib" "lisp"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "todotxt.el"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "magit"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "ace-jump-mode"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "yasnippet"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "rinari"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "bm"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "workgroups.el"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "emacs-color-theme-solarized"))
+    (let ((default-directory "~/.emacs.d/"))
+      (normal-top-level-add-to-load-path '("."))
+      (normal-top-level-add-to-load-path '("workgroups.el" "todotxt.el"))
+      (normal-top-level-add-subdirs-to-load-path))
 #+end_src
 * Editor Behavior
 ** Workgroups
-If you use Emacs for a variety of tasks, Workgroups makes every go more smoothly.  Highly recommended for power users.
+If you use Emacs for a variety of tasks, Workgroups makes every go
+more smoothly.  Highly recommended for power users.
 #+begin_src emacs-lisp
   (require 'workgroups)
   (workgroups-mode 1)
@@ -124,12 +134,30 @@ upper right of the frame I'm working in.
   (mouse-avoidance-mode 'banish)
 #+end_src
 ** Prevent backups from littering the file system
-By default, Emacs provides fairly robust backup file (files that end with a ~) support, but it leaves those files in the same directories alongside the originals.  This is a customization that gathers all the backups into one spot, so you can find them in one place, and don't have to worry about, e.g. your version control system commiting them by accident.
+By default, Emacs provides fairly robust backup file (files that end
+with a ~) support, but it leaves those files in the same directories
+alongside the originals.  This is a customization that gathers all the
+backups into one spot, so you can find them in one place, and don't
+have to worry about, e.g. your version control system commiting them
+by accident.
 #+begin_src emacs-lisp
 (setq backup-directory-alist `(("." . ,(construct-path "~" "emacsbackup"))))
 #+end_src
+** Whitespace
+   In some coding environments, folks take the "80 column rule" pretty
+   seriously.  Luckily, Emacs has some support for letting you know
+   when you exceed 80 columns built in using whitespace mode.
+#+begin_src emacs-lisp
+  (require 'whitespace)
+  (setq whitespace-style '(face empty tabs lines-tail trailing))
+  (global-whitespace-mode t)
+#+end_src
+
 ** Region selection
-The newer versions of Emacs (version 23+), turn on a more common but less powerful mode for text selection called =transient-mark-mode=, which only supplies an active region when text is selected.  This disables that mode in favor of the traditional Emacs behavior.
+The newer versions of Emacs (version 23+), turn on a more common but
+less powerful mode for text selection called =transient-mark-mode=,
+which only supplies an active region when text is selected.  This
+disables that mode in favor of the traditional Emacs behavior.
 #+begin_src emacs-lisp
 (transient-mark-mode 0)
 #+end_src
@@ -141,7 +169,9 @@ The newer versions of Emacs (version 23+), turn on a more common but less powerf
   (global-set-key "\C-cp" 'bm-previous)
 #+end_src
 ** Clipboard Behavior
-Emacs maintains a kill-ring independent of the system clipboard.  This can be useful or annoying, and I tend to find it annoying.  This variable combines the two clipboards to they interoperate.
+Emacs maintains a kill-ring independent of the system clipboard.  This
+can be useful or annoying, and I tend to find it annoying.  This
+variable combines the two clipboards to they interoperate.
 #+begin_src emacs-lisp
 (setq-default x-select-enable-clipboard t)
 #+end_src
@@ -168,12 +198,23 @@ the yas fallback function to call org's command.
 #+end_src
 
 ** Meta Key Modifications
-On many platform/keyboard combinations, keys are not placed conveniently for use in Emacs.  Specifically, the control key is often placed in the lower left corner of the keyboard, which can cause strain.  This is usually rebound to a more convenient location (like the key that most modern keyboards assign to Caps Lock).  The other key that sometimes causes issues is the Meta key, and that is what we address here.  If you're using Emacs on Apple hardware with an Apple keyboard, for example, the "Command" key should be treated as Meta.  This can be effected with:
+On many platform/keyboard combinations, keys are not placed
+conveniently for use in Emacs.  Specifically, the control key is often
+placed in the lower left corner of the keyboard, which can cause
+strain.  This is usually rebound to a more convenient location (like
+the key that most modern keyboards assign to Caps Lock).  The other
+key that sometimes causes issues is the Meta key, and that is what we
+address here.  If you're using Emacs on Apple hardware with an Apple
+keyboard, for example, the "Command" key should be treated as Meta.
+This can be effected with:
 #+begin_src emacs-lisp
   (if (eq system-type 'darwin)
       (setq ns-command-modifier (quote meta)))
 #+end_src
-It's worth noting that this variable doesn't even exist on non-Apple platforms, and may or may not be present in alternative builds like Carbon Emacs and Aquamacs, which have their own methods for handling Meta key behavior on Apple platforms.
+It's worth noting that this variable doesn't even exist on non-Apple
+platforms, and may or may not be present in alternative builds like
+Carbon Emacs and Aquamacs, which have their own methods for handling
+Meta key behavior on Apple platforms.
 
 Similar techniques can be used to assign Meta on Linux, as well:
 #+begin_src emacs-lisp :tangle no
@@ -181,25 +222,33 @@ Similar techniques can be used to assign Meta on Linux, as well:
 (setq x-super-keysym 'meta)
 #+end_src
 ** Syntax Highlighting (font locking)
-Emacs doesn't turn on syntax highlighting by default.  This enables it globally (across all buffers).
+Emacs doesn't turn on syntax highlighting by default.  This enables it
+globally (across all buffers).
 #+begin_src emacs-lisp
 (global-font-lock-mode t)
 #+end_src
 ** Tabs Handling
-This tends to be a relgious issue, but I prefer it when tabs are never used in any of my work.  This tells Emacs to indent with spaces rather than tabs, and set a tab width to be four spaces.
+This tends to be a relgious issue, but I prefer it when tabs are never
+used in any of my work.  This tells Emacs to indent with spaces rather
+than tabs, and set a tab width to be four spaces.
 #+begin_src emacs-lisp
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 #+end_src
 
 ** Minibuffer Handling
-There are a variety of helper modes that improve the file finding and buffer switching functionality.  I used to use =iswitchb-mode=, which affects only buffer switching, but now use the more comprehensive =ido-mode=, which affects file finding as well.
+There are a variety of helper modes that improve the file finding and
+buffer switching functionality.  I used to use =iswitchb-mode=, which
+affects only buffer switching, but now use the more comprehensive
+=ido-mode=, which affects file finding as well.
 #+begin_src emacs-lisp
 (ido-mode t)
 #+end_src
 
 ** Modeline Information
-By default, the modeline doesn't contain a lot of information.  These commands add time, CPU load, battery information and column number information for the current point position.
+By default, the modeline doesn't contain a lot of information.  These
+commands add time, CPU load, battery information and column number
+information for the current point position.
 #+begin_src emacs-lisp
 (display-time-mode t)
 (column-number-mode t)
@@ -207,34 +256,58 @@ By default, the modeline doesn't contain a lot of information.  These commands a
 #+end_src
 
 ** Scrolling
-One of the best changes to Emacs' default behavior, this modifies the scrolling behavior to maintain better continuity.  The default behavior is jumpy and disorienting for me.  Most other editors are better, but only scroll when you hit the bottom or top of the screen.  This modification makes Emacs behave like other editors, but places a 10-line margin at the top of the bottom of the screen so when the screen begins scrolling, you have some context surrounding the point.
+One of the best changes to Emacs' default behavior, this modifies the
+scrolling behavior to maintain better continuity.  The default
+behavior is jumpy and disorienting for me.  Most other editors are
+better, but only scroll when you hit the bottom or top of the screen.
+This modification makes Emacs behave like other editors, but places a
+10-line margin at the top of the bottom of the screen so when the
+screen begins scrolling, you have some context surrounding the point.
 #+begin_src emacs-lisp
 (setq scroll-conservatively 10)
 (setq scroll-margin 7)
 (setq inhibit-startup-screen 1)
 #+end_src
 ** Paretheses
-If the cursor is on a parenthesis, bracket or brace, this mode highlights the corresponding parenthesis, bracket or brace.  Very handy in a lot of situations, most notably when programming in lisp.
+If the cursor is on a parenthesis, bracket or brace, this mode
+highlights the corresponding parenthesis, bracket or brace.  Very
+handy in a lot of situations, most notably when programming in lisp.
 #+begin_src emacs-lisp
 (show-paren-mode t)
 #+end_src
 ** Browse Kill Ring
-The kill ring is amazing, but Emacs doesn't provide a good mechanism to easily access the elements of it interactively.  This code does.
+The kill ring is amazing, but Emacs doesn't provide a good mechanism
+to easily access the elements of it interactively.  This code does.
 #+begin_src emacs-lisp
 (require 'browse-kill-ring)
 (browse-kill-ring-default-keybindings)
 #+end_src
 ** Line Wrapping
-There are lots of ways to handle line wrapping, but this mode is the best I've found, by far.  It does not insert hard newlines into your document, and behaves correctly /vis a vis/ line numbers.
+There are lots of ways to handle line wrapping, but this mode is the
+best I've found, by far.  It does not insert hard newlines into your
+document, and behaves correctly /vis a vis/ line numbers.
 #+begin_src emacs-lisp
 (global-visual-line-mode 1)
 #+end_src
 ** Emacs Server
-The idiomatic way to use Emacs is to keep one Emacs session running, and open new files in that session.  This can be inconvenient when you're in another application and want to open a file it is pointing to.  Often, such applications support the "Open with..." command, but you'd need a way to tell them to open the file with the currently running Emacs session.  The way to do this is to have your Emacs session run in server mode (which is the piece of code below), and use the command =emacsclient= to open the file; =emacsclient= will take care of handing the file off the current Emacs session.
+The idiomatic way to use Emacs is to keep one Emacs session running,
+and open new files in that session.  This can be inconvenient when
+you're in another application and want to open a file it is pointing
+to.  Often, such applications support the "Open with..." command, but
+you'd need a way to tell them to open the file with the currently
+running Emacs session.  The way to do this is to have your Emacs
+session run in server mode (which is the piece of code below), and use
+the command =emacsclient= to open the file; =emacsclient= will take
+care of handing the file off the current Emacs session.
 #+begin_src emacs-lisp
 (server-start)
 #+end_src
 ** Applications
+*** Sunrise Commander
+#+begin_src emacs-lisp
+(require 'sunrise-commander)
+
+#+end_src
 *** Magit
 #+begin_src emacs-lisp
 (require 'magit)
@@ -252,10 +325,13 @@ The idiomatic way to use Emacs is to keep one Emacs session running, and open ne
 (setq recentf-auto-cleanup 'never)
 #+end_src
 *** Org Capture
-Org offers a data capture mode much like =remember-mode=, which is great for capturing tasks and information that you need to remember.  This simply sets up a capture destination under the "Uncategorized" bullet of incoming.org in my "memex" directory.
+Org offers a data capture mode much like =remember-mode=, which is
+great for capturing tasks and information that you need to remember.
+This simply sets up a capture destination under the "Uncategorized"
+bullet of incoming.org in my "memex" directory.
 #+begin_src emacs-lisp
 (org-remember-insinuate)
-(setq org-directory (construct-path (file-name-as-directory "~") "Dropbox" "memex"))
+(setq org-directory (construct-path (file-name-as-directory "~") "vault" "memex"))
 (setq org-default-notes-file (construct-path  org-directory "incoming.org"))
 #+end_src
 
@@ -277,7 +353,9 @@ A cursor navigation system so advanced it makes C-s look slow.  Thanks winterTTr
 (windmove-default-keybindings)
 #+end_src
 ** Org-Babel Setup
-Org babel is an insanely powerful add-on for org-mode that allow code to be integrated into documents.  This sets up what languages can be executed with babel.
+Org babel is an insanely powerful add-on for org-mode that allow code
+to be integrated into documents.  This sets up what languages can be
+executed with babel.
 
 #+begin_src emacs-lisp
   (org-babel-do-load-languages
@@ -294,20 +372,27 @@ Org babel is an insanely powerful add-on for org-mode that allow code to be inte
   :ARCHIVE_OLPATH: Editor Behavior
   :ARCHIVE_CATEGORY: emacs
   :END:
-As seen in Steve Yegge's discussion on Effective Emacs, these three settings change some default behavior to speed up common actions.
-Here, we enable the use of C-x C-m to provide the same functionality as M-x provides.  Why? See [[http://sites.google.com/site/steveyegge2/effective-emacs][Effective Emacs]], Item 2.
+As seen in Steve Yegge's discussion on Effective Emacs, these three
+settings change some default behavior to speed up common actions.
+
+Here, we enable the use of C-x C-m to provide the same functionality
+as M-x provides.  Why? See [[http://sites.google.com/site/steveyegge2/effective-emacs][Effective Emacs]], Item 2.
 #+begin_src emacs-lisp
 (global-set-key "\C-x\C-m" 'execute-extended-command)
 #+end_src
 
-Also from Effective Emacs, this is item 3, which allows us to be able to =backward-kill-word= without having to reach for the backspace key.  I'm no longer tangling this section so I can have access to the default macro handling functions.
+Also from Effective Emacs, this is item 3, which allows us to be able
+to =backward-kill-word= without having to reach for the backspace key.
+I'm no longer tangling this section so I can have access to the
+default macro handling functions.
 
 #+begin_src emacs-lisp :tangle no
 (global-set-key "\C-w" 'backward-kill-word)
 (global-set-key "\C-x\C-k" 'kill-region)
 #+end_src
 
-I use several functions very often, so I like to be able to access them very quickly.  These accelerators proide that quick access.
+I use several functions very often, so I like to be able to access
+them very quickly.  These accelerators proide that quick access.
 #+begin_src emacs-lisp
 (global-set-key "\C-xi" 'ibuffer)
 (global-set-key "\C-xg" 'magit-status)
@@ -316,9 +401,11 @@ I use several functions very often, so I like to be able to access them very qui
 (global-set-key (kbd "C-x t") 'todotxt)
 (global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cc" 'org-capture)
+(global-set-key "\C-xs" 'sunrise)
 #+end_src
 
-I have some custom functions I defined earlier that are useful to have easy access to.
+I have some custom functions I defined earlier that are useful to have
+easy access to.
 #+begin_src emacs-lisp
   (global-set-key "\C-xj" 'org-presentation-start)
 #+end_src
@@ -329,32 +416,41 @@ I have some custom functions I defined earlier that are useful to have easy acce
   (scroll-bar-mode -1)
 #+end_src
 ** End of File Newlines
-There are two aspects to the following customizations.  First, there are a bunch of tools out there that rely on text files ending with a newline to operate correctly.  This setting ensures that a newline is inserted if one does not exist when we save files with Emacs.
+There are two aspects to the following customizations.  First, there
+are a bunch of tools out there that rely on text files ending with a
+newline to operate correctly.  This setting ensures that a newline is
+inserted if one does not exist when we save files with Emacs.
 #+begin_src emacs-lisp
 (setq require-final-newline t)
 #+end_src
 
-The second customization disables a mode in which Emacs automatically adds newline characters if you tell it to move to the next line at the end of a buffer.
+The second customization disables a mode in which Emacs automatically
+adds newline characters if you tell it to move to the next line at the
+end of a buffer.
 #+begin_src emacs-lisp
 (setq next-line-add-newlines nil)
 #+end_src
 ** Advanced Commands
-There are a variety of commands that Emacs considers "advanced", and will therefore disallow execution of until you affirm (via a prompt) that you actually want to use them.  These commands tell Emacs not to do this for commands I use.
+There are a variety of commands that Emacs considers "advanced", and
+will therefore disallow execution of until you affirm (via a prompt)
+that you actually want to use them.  These commands tell Emacs not to
+do this for commands I use.
 #+begin_src emacs-lisp
 (put 'narrow-to-region 'disabled nil)
 (put 'dired-find-alternate-file 'disabled nil)
 (put 'set-goal-column 'disabled nil)
 #+end_src
 ** Color Themes
-Color themes are included in Emacs 24, but not Solarized.  This remedies that.
+Color themes are included in Emacs 24, but not Solarized.  This
+remedies that.
 #+begin_src emacs-lisp
   (require 'color-theme-solarized)
   (color-theme-solarized-dark)
 #+end_src
 ** Browser Configuration
-Sets up the default browser that Emacs uses to display HTML and visit links.
+Sets up the default browser that Emacs uses to display HTML and visit
+links.
 #+begin_src emacs-lisp
 (setq browse-url-browser-function (quote browse-url-generic))
 (setq browse-url-generic-program "firefox")
 #+end_src
-
