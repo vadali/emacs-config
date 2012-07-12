@@ -31,3 +31,6 @@
 [submodule "sunrise-commander"]
 	path = sunrise-commander
 	url = git://github.com/escherdragon/sunrise-commander.git
+[submodule "helm"]
+	path = helm
+	url = https://github.com/emacs-helm/helm.git

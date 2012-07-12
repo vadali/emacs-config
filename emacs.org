@@ -133,6 +133,16 @@ upper right of the frame I'm working in.
 #+begin_src emacs-lisp
   (mouse-avoidance-mode 'banish)
 #+end_src
+** Helm
+#+begin_src emacs-lisp
+(require 'helm-config)
+#+end_src
+** Line highlighting
+It's nice to have the current line highlighted.  This enables that
+functionality globally.
+#+begin_src emacs-lisp
+(global-hl-line-mode 1)
+#+end_src
 ** Prevent backups from littering the file system
 By default, Emacs provides fairly robust backup file (files that end
 with a ~) support, but it leaves those files in the same directories
@@ -144,9 +154,9 @@ by accident.
 (setq backup-directory-alist `(("." . ,(construct-path "~" "emacsbackup"))))
 #+end_src
 ** Whitespace
-   In some coding environments, folks take the "80 column rule" pretty
-   seriously.  Luckily, Emacs has some support for letting you know
-   when you exceed 80 columns built in using whitespace mode.
+In some coding environments, folks take the "80 column rule" pretty
+seriously.  Luckily, Emacs has some support for letting you know
+when you exceed 80 columns built in using whitespace mode.
 #+begin_src emacs-lisp
   (require 'whitespace)
   (setq whitespace-style '(face empty tabs lines-tail trailing))
@@ -154,14 +164,18 @@ by accident.
 #+end_src
 
 ** Region selection
-The newer versions of Emacs (version 23+), turn on a more common but
-less powerful mode for text selection called =transient-mark-mode=,
-which only supplies an active region when text is selected.  This
-disables that mode in favor of the traditional Emacs behavior.
+The newer versions of Emacs (version 23+), turn on a more common
+but less powerful mode for text selection called
+=transient-mark-mode=, which only supplies an active region when
+text is selected.  This disables that mode in favor of the
+traditional Emacs behavior.
 #+begin_src emacs-lisp
 (transient-mark-mode 0)
 #+end_src
-** BM
+** Bookmarking
+Emacs natively supports saving the point to a register, but =bm= makes
+it a bit more convenient by highlighting bookmarked lines and easily
+jumping among them.
 #+begin_src emacs-lisp
   (require 'bm)
   (global-set-key "\C-ct" 'bm-toggle)
